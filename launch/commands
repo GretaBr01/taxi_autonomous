@@ -1,0 +1,19 @@
+set instance taxi1 robot
+set instance room1 room
+set instance room2 room
+set instance room3 room
+set instance alice passenger
+
+set predicate (robot_at taxi1 room1)
+set predicate (passenger_at alice room2)
+
+set predicate (connected room1 room2)
+set predicate (connected room2 room3)
+set predicate (connected room3 room2)
+set predicate (connected room2 room1)
+
+set predicate (charging_point_at room3)
+
+set function (battery_level taxi1) 50
+
+set goal (and (passenger_at alice room3))
