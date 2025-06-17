@@ -1,0 +1,9 @@
+drive_normal_traffic_action_node:
+  ros__parameters:
+    waypoints: ["a", "b", "c","d","e","f"]
+    a: [0.0, 0.0]
+    b: [2.0, 0.0]
+    c: [0.0, 3.0]
+    d: [4.0, 2.0]
+    e: [1.0, 2.0]
+    f: [-2.0, 3.0]
