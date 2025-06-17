@@ -1,0 +1,5 @@
+planner:
+  ros__parameters:
+    plan_solver_plugins: ["TFD"]  # <-- questo lo sovrascriviamo da launch
+    TFD:
+      plugin: "plansys2/TFDPlanSolver"
