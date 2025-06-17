@@ -1,19 +1,43 @@
-set instance taxi1 robot
-set instance room1 room
-set instance room2 room
-set instance room3 room
+;; Istanze
+set instance taxi1 vehicle
+set instance taxi2 vehicle
 set instance alice passenger
+set instance bob passenger
 
-set predicate (robot_at taxi1 room1)
-set predicate (passenger_at alice room2)
+set instance a location
+set instance b location
+set instance c location
+set instance d location
+set instance e location
+set instance f location
 
-set predicate (connected room1 room2)
-set predicate (connected room2 room3)
-set predicate (connected room3 room2)
-set predicate (connected room2 room1)
+;; Posizioni iniziali
+set predicate (at taxi1 a)
+set predicate (at taxi2 b)
+set predicate (at_passenger alice c)
+set predicate (at_passenger bob d)
 
-set predicate (charging_point_at room3)
+;; Connessioni tra le stanze
+set predicate (connected a b)
+set predicate (connected b c)
+set predicate (connected c d)
+set predicate (connected d e)
+set predicate (connected e f)
+set predicate (connected b e)
+set predicate (connected b a)
+set predicate (connected c b)
+set predicate (connected d c)
+set predicate (connected e d)
+set predicate (connected f e)
+set predicate (connected e b)
 
-set function (battery_level taxi1) 50
+;; Stazioni di ricarica
+set predicate (charging_station f)
+set predicate (charging_station a)
 
-set goal (and (passenger_at alice room3))
+;; Traffico pesante
+set predicate (traffic_heavy b c)
+set predicate (traffic_heavy d e)
+
+;; Obiettivi
+set goal (and (at_passenger alice f) (at_passenger bob a))
