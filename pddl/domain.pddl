@@ -1,82 +1,150 @@
-(define (domain robotaxi)
-(:requirements :strips :typing :adl :fluents :durative-actions)
+(define (domain urban_taxi_extended_temporal)
+  (:requirements :strips :typing :durative-actions)
 
-;; TYPES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(:types
-  robot
-  room
-  passenger
-)
-
-;; PREDICATES ;;;;;;;;;;;;;;;;;;;;;;;;;
-(:predicates
-  (robot_at ?r - robot ?ro - room)
-  (passenger_at ?p - passenger ?ro - room)
-  (in_taxi ?p - passenger ?r - robot)
-  (charging_point_at ?ro - room)
-  (connected ?ro1 ?ro2 - room)
-)
-
-;; FUNCTIONS ;;;;;;;;;;;;;;;;;;;;;;;;;
-(:functions
-  (battery_level ?r - robot) ;; valori numerici
-)
-
-;; ACTIONS ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Movimento tra stanze
-(:durative-action move
-  :parameters (?r - robot ?from ?to - room)
-  :duration (= ?duration 5)
-  :condition (and
-    (at start (robot_at ?r ?from))
-    (at start (connected ?from ?to))
-    (over all (> (battery_level ?r) 10))
+  (:types
+    vehicle passenger location
   )
-  :effect (and
-    (at start (not (robot_at ?r ?from)))
-    (at end (robot_at ?r ?to))
-    (at end (decrease (battery_level ?r) 10))
+
+  (:predicates
+    (at ?v - vehicle ?l - location)
+    (at_passenger ?p - passenger ?l - location)
+    (in ?p - passenger ?v - vehicle)
+    (connected ?from - location ?to - location)
+    (charging_station ?l - location)
+    (energy_low ?v - vehicle)
+    (busy ?v - vehicle)
+    (traffic_heavy ?from - location ?to - location)
+    (occupied ?v - vehicle) ;; nuovo predicato per occupazione taxi
+  )
+
+  (:functions
+    (capacity ?v - vehicle)
+  )
+
+  (:durative-action drive_normal
+    :parameters (?v - vehicle ?from - location ?to - location)
+    :duration (= ?duration 5)
+    :condition (and
+      (at start (at ?v ?from))
+      (at start (connected ?from ?to))
+      (at start (not (busy ?v)))
+      (at start (not (charging_station ?to)))
+      (at start (not (traffic_heavy ?from ?to)))
+    )
+    :effect (and
+      (at start (busy ?v))
+      (at end (not (busy ?v)))
+      (at end (not (at ?v ?from)))
+      (at end (at ?v ?to))
+      (at end (energy_low ?v))
+    )
+  )
+
+  (:durative-action drive_normal_traffic
+    :parameters (?v - vehicle ?from - location ?to - location)
+    :duration (= ?duration 10)
+    :condition (and
+      (at start (at ?v ?from))
+      (at start (connected ?from ?to))
+      (at start (not (busy ?v)))
+      (at start (not (charging_station ?to)))
+      (at start (traffic_heavy ?from ?to))
+    )
+    :effect (and
+      (at start (busy ?v))
+      (at end (not (busy ?v)))
+      (at end (not (at ?v ?from)))
+      (at end (at ?v ?to))
+      (at end (energy_low ?v))
+    )
+  )
+
+  (:durative-action drive_to_charge
+    :parameters (?v - vehicle ?from - location ?to - location)
+    :duration (= ?duration 5)
+    :condition (and
+      (at start (at ?v ?from))
+      (at start (connected ?from ?to))
+      (at start (not (busy ?v)))
+      (at start (charging_station ?to))
+      (at start (not (traffic_heavy ?from ?to)))
+    )
+    :effect (and
+      (at start (busy ?v))
+      (at end (not (busy ?v)))
+      (at end (not (at ?v ?from)))
+      (at end (at ?v ?to))
+    )
+  )
+
+  (:durative-action drive_to_charge_traffic
+    :parameters (?v - vehicle ?from - location ?to - location)
+    :duration (= ?duration 10)
+    :condition (and
+      (at start (at ?v ?from))
+      (at start (connected ?from ?to))
+      (at start (not (busy ?v)))
+      (at start (charging_station ?to))
+      (at start (traffic_heavy ?from ?to))
+    )
+    :effect (and
+      (at start (busy ?v))
+      (at end (not (busy ?v)))
+      (at end (not (at ?v ?from)))
+      (at end (at ?v ?to))
+    )
+  )
+
+  (:durative-action pickup
+    :parameters (?v - vehicle ?p - passenger ?l - location)
+    :duration (= ?duration 2)
+    :condition (and
+      (at start (at ?v ?l))
+      (at start (at_passenger ?p ?l))
+      (at start (not (in ?p ?v)))
+      (at start (not (busy ?v)))
+      (at start (not (occupied ?v))) ;; qui controllo che il taxi non sia occupato
+    )
+    :effect (and
+      (at start (busy ?v))
+      (at end (not (busy ?v)))
+      (at end (in ?p ?v))
+      (at end (not (at_passenger ?p ?l)))
+      (at end (occupied ?v)) ;; taxi ora occupato
+    )
+  )
+
+  (:durative-action dropoff
+    :parameters (?v - vehicle ?p - passenger ?l - location)
+    :duration (= ?duration 2)
+    :condition (and
+      (at start (at ?v ?l))
+      (at start (in ?p ?v))
+      (at start (not (busy ?v)))
+    )
+    :effect (and
+      (at start (busy ?v))
+      (at end (not (busy ?v)))
+      (at end (not (in ?p ?v)))
+      (at end (at_passenger ?p ?l))
+      (at end (not (occupied ?v))) ;; taxi ora libero
+    )
+  )
+
+  (:durative-action charge
+    :parameters (?v - vehicle ?l - location)
+    :duration (= ?duration 3)
+    :condition (and
+      (at start (at ?v ?l))
+      (at start (charging_station ?l))
+      (at start (energy_low ?v))
+      (at start (not (busy ?v)))
+    )
+    :effect (and
+      (at start (busy ?v))
+      (at end (not (busy ?v)))
+      (at end (not (energy_low ?v)))
+    )
   )
 )
 
-;; Ricarica
-(:durative-action charge
-  :parameters (?r - robot ?loc - room)
-  :duration (= ?duration 10)
-  :condition (and
-    (at start (robot_at ?r ?loc))
-    (at start (charging_point_at ?loc))
-  )
-  :effect (at end (increase (battery_level ?r) 50))
-)
-
-;; Caricare un passeggero
-(:durative-action pickup
-  :parameters (?r - robot ?p - passenger ?loc - room)
-  :duration (= ?duration 2)
-  :condition (and
-    (at start (robot_at ?r ?loc))
-    (at start (passenger_at ?p ?loc))
-  )
-  :effect (and
-    (at end (not (passenger_at ?p ?loc)))
-    (at end (in_taxi ?p ?r))
-  )
-)
-
-;; Lasciare un passeggero
-(:durative-action dropoff
-  :parameters (?r - robot ?p - passenger ?loc - room)
-  :duration (= ?duration 2)
-  :condition (and
-    (at start (robot_at ?r ?loc))
-    (at start (in_taxi ?p ?r))
-  )
-  :effect (and
-    (at end (not (in_taxi ?p ?r)))
-    (at end (passenger_at ?p ?loc))
-  )
-)
-
-)
