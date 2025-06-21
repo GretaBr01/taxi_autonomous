@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(taxi_autonomous_nav2)
+project(my_taxi_autonomous)
 
 # Dipendenze
 find_package(ament_cmake REQUIRED)
@@ -10,19 +10,24 @@ find_package(plansys2_executor REQUIRED)
 
 find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(nav_msgs REQUIRED)
+
 
 find_package(tf2_geometry_msgs REQUIRED)
-find_package(nav2_msgs REQUIRED)
 
 set(CMAKE_CXX_STANDARD 17)
 
 set(dependencies
   rclcpp
   rclcpp_action
+  rclcpp_lifecycle
   plansys2_msgs
   plansys2_executor
   geometry_msgs
-  nav2_msgs
+  tf2 
+  tf2_ros
+  tf2_geometry_msgs
+  nav_msgs
 )
 
 include_directories(include)
@@ -61,6 +66,17 @@ ament_target_dependencies(pickup_action_node ${dependencies})
 add_executable(dropoff_action_node src/dropoff_action_node.cpp)
 ament_target_dependencies(dropoff_action_node ${dependencies})
 
+add_executable(controller_node src/controller_node.cpp)
+ament_target_dependencies(controller_node ${dependencies})
+
+add_executable(cmd_vel_bridge src/cmd_vel_bridge.cpp)
+ament_target_dependencies(cmd_vel_bridge rclcpp geometry_msgs)
+
+add_executable(cmd_vel_publisher src/cmd_vel_publisher.cpp)
+ament_target_dependencies(cmd_vel_publisher rclcpp geometry_msgs)
+
+
+
 # Installazione file launch e PDDL
 install(DIRECTORY
   config
@@ -81,7 +97,10 @@ install(TARGETS
   drive_to_charge_traffic_action_node
   charge_action_node
   pickup_action_node
-  dropoff_action_node
+  dropoff_action_node 
+  controller_node
+  cmd_vel_bridge
+  cmd_vel_publisher
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

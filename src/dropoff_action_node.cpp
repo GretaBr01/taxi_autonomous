@@ -28,7 +28,7 @@ private:
 
     if (progress_ < 1.0) {
       progress_ += 0.1;
-      send_feedback(progress_, "Dropping off passenger");
+      // send_feedback(progress_, "Dropping off passenger");
     } else {
       finish(true, 1.0, "Dropoff completed");
 
@@ -36,10 +36,10 @@ private:
       std::cout << std::endl;
     }
 
-    std::cout << "\r\e[K" << std::flush;
-    std::cout << "Taxi " << robot_ << " dropping off " << passenger_ 
-              << " at " << location_ << " [" 
-              << std::min(100.0, progress_ * 100.0) << "%]  " << std::flush;
+    // std::cout << "\r\e[K" << std::flush;
+    // std::cout << "Taxi " << robot_ << " dropping off " << passenger_ 
+    //           << " at " << location_ << " [" 
+    //           << std::min(100.0, progress_ * 100.0) << "%]  " << std::flush;
   }
 
   void parse_parameters(){
@@ -69,6 +69,7 @@ int main(int argc, char ** argv){
 
   node->set_parameter(rclcpp::Parameter("action_name", "dropoff"));
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+  
 
   rclcpp::spin(node->get_node_base_interface());
   rclcpp::shutdown();
