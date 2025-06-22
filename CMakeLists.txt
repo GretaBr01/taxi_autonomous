@@ -38,24 +38,24 @@ install(DIRECTORY include/
 
 # Eseguibili delle azioni
 
-add_library(${PROJECT_NAME} SHARED src/MoveAction.cpp)
-ament_target_dependencies(${PROJECT_NAME} ${dependencies})
+# add_library(${PROJECT_NAME} SHARED src/MoveAction.cpp)
+# ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
 add_executable(drive_normal_action_node src/drive_normal_action_node.cpp)
 ament_target_dependencies(drive_normal_action_node ${dependencies})
-target_link_libraries(drive_normal_action_node ${PROJECT_NAME})
+# target_link_libraries(drive_normal_action_node ${PROJECT_NAME})
 
 add_executable(drive_normal_traffic_action_node src/drive_normal_traffic_action_node.cpp)
 ament_target_dependencies(drive_normal_traffic_action_node ${dependencies})
-target_link_libraries(drive_normal_traffic_action_node ${PROJECT_NAME})
+# target_link_libraries(drive_normal_traffic_action_node ${PROJECT_NAME})
 
 add_executable(drive_to_charge_action_node src/drive_to_charge_action_node.cpp)
 ament_target_dependencies(drive_to_charge_action_node ${dependencies})
-target_link_libraries(drive_to_charge_action_node ${PROJECT_NAME})
+# target_link_libraries(drive_to_charge_action_node ${PROJECT_NAME})
 
 add_executable(drive_to_charge_traffic_action_node src/drive_to_charge_traffic_action_node.cpp)
 ament_target_dependencies(drive_to_charge_traffic_action_node ${dependencies})
-target_link_libraries(drive_to_charge_traffic_action_node ${PROJECT_NAME})
+# target_link_libraries(drive_to_charge_traffic_action_node ${PROJECT_NAME})
 
 add_executable(charge_action_node src/charge_action_node.cpp)
 ament_target_dependencies(charge_action_node ${dependencies})
@@ -90,7 +90,7 @@ install(DIRECTORY
 
 # Installazione binari
 install(TARGETS
-  ${PROJECT_NAME}
+  # ${PROJECT_NAME}
   drive_normal_action_node
   drive_normal_traffic_action_node
   drive_to_charge_action_node

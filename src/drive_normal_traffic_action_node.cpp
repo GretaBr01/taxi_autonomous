@@ -116,6 +116,7 @@ private:
       linear = 0.0;
       angular = 0.0;
       send_velocity(linear,angular);
+      parsed_=false;
       finish(true, 1.0, "Goal reached");
       // goal_reached_ = true;
       return;

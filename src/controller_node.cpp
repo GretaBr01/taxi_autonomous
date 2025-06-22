@@ -71,7 +71,11 @@ public:
 
             if (plan.has_value()) {
                 current_plan_ = plan.value();
-                executor_client_->start_plan_execution(current_plan_);
+
+                if (!executor_client_->start_plan_execution(current_plan_)) {
+                    RCLCPP_ERROR(get_logger(), "Errore durante l'avvio dell'esecuzione del piano");
+                    return;
+                }
                 state_ = EXECUTING;
                 RCLCPP_INFO(get_logger(), "Piano trovato, inizio esecuzione");
             } else {

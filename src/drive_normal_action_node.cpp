@@ -47,29 +47,40 @@ public:
     this->declare_parameter("waypoints", std::vector<std::string>{});
     std::vector<std::string> wp_names_ = this->get_parameter("waypoints").as_string_array();
 
-    for (int i = 0; i < wp_names_.size(); i++) {
-      std::string wp_str = wp_names_.at(i);
-      
-      declare_parameter(wp_str.c_str(), std::vector<double>{});
-      std::vector<double> coords = get_parameter(wp_str.c_str()).as_double_array();
-      
-      //posizione dell'elemento sulla mapppa
-      geometry_msgs::msg::PoseStamped wp;
-      wp.header.frame_id = "map";
-      wp.header.stamp = now();
-
-      wp.pose.position.x = coords.at(0);
-      wp.pose.position.y = coords.at(1);
-      wp.pose.position.z = 0.0;
-      wp.pose.orientation.x = 0.0;
-      wp.pose.orientation.y = 0.0;
-      wp.pose.orientation.z = 0.0;
-      wp.pose.orientation.w = 1.0;
-      locations_[wp_str] = wp;
-
-      RCLCPP_INFO(this->get_logger(), "Loaded waypoint [%s]: x=%.2f, y=%.2f", wp_str.c_str(), coords[0], coords[1]);
-
+    for (const auto& name : wp_names_) {
+      this->declare_parameter(name, std::vector<double>{});
+      auto coords = this->get_parameter(name).as_double_array();
+      if (coords.size() < 2) {
+        RCLCPP_WARN(this->get_logger(), "Waypoint '%s' non valido (meno di 2 coordinate)", name.c_str());
+        continue;
+      }
+      locations_[name] = {coords[0], coords[1]};
+      RCLCPP_INFO(this->get_logger(), "Caricato waypoint '%s' -> x=%.2f y=%.2f", name.c_str(), coords[0], coords[1]);
     }
+
+    // for (int i = 0; i < wp_names_.size(); i++) {
+    //   std::string wp_str = wp_names_.at(i);
+      
+    //   declare_parameter(wp_str.c_str(), std::vector<double>{});
+    //   std::vector<double> coords = get_parameter(wp_str.c_str()).as_double_array();
+      
+    //   //posizione dell'elemento sulla mapppa
+    //   geometry_msgs::msg::PoseStamped wp;
+    //   wp.header.frame_id = "map";
+    //   wp.header.stamp = now();
+
+    //   wp.pose.position.x = coords.at(0);
+    //   wp.pose.position.y = coords.at(1);
+    //   wp.pose.position.z = 0.0;
+    //   wp.pose.orientation.x = 0.0;
+    //   wp.pose.orientation.y = 0.0;
+    //   wp.pose.orientation.z = 0.0;
+    //   wp.pose.orientation.w = 1.0;
+    //   locations_[wp_str] = wp;
+
+    //   RCLCPP_INFO(this->get_logger(), "Loaded waypoint [%s]: x=%.2f, y=%.2f", wp_str.c_str(), coords[0], coords[1]);
+
+    // }
   }
 
 private:
@@ -116,6 +127,7 @@ private:
       linear = 0.0;
       angular = 0.0;
       send_velocity(linear,angular);
+      parsed_=false;
       finish(true, 1.0, "Goal reached");
       // goal_reached_ = true;
       return;
@@ -148,8 +160,8 @@ private:
         return;
       }
 
-      target_x_ = locations_[to_].pose.position.x;
-      target_y_ = locations_[to_].pose.position.y;
+      target_x_ = locations_[to_].first;
+      target_y_ = locations_[to_].second;
 
       parsed_ = true;
 
@@ -203,7 +215,7 @@ private:
   // rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr pose_sub_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub_;
-  std::map<std::string, geometry_msgs::msg::PoseStamped> locations_;
+  std::map<std::string, std::pair<double, double>> locations_;
 };
 
 int main(int argc, char ** argv){

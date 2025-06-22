@@ -9,6 +9,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
+#include "geometry_msgs/msg/twist.hpp"
+
 using namespace std::chrono_literals;
 
 class ChargeAction : public plansys2::ActionExecutorClient{
@@ -17,9 +19,20 @@ public:
   : plansys2::ActionExecutorClient("charge", 500ms)
   {
     progress_ = 0.0;
+    cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
   }
 
 private:
+
+  void send_velocity(double linear_x, double angular_z){
+    geometry_msgs::msg::Twist msg;
+    msg.linear.x = linear_x;
+    msg.angular.z = angular_z;
+
+    cmd_vel_pub_->publish(msg);
+    // RCLCPP_INFO(this->get_logger(), "Sent velocity: linear.x = %.2f, angular.z = %.2f", linear_x, angular_z);
+  }
+
   void do_work() override{
     if (!parsed_) {
       parse_parameters();
@@ -28,17 +41,20 @@ private:
 
     if (progress_ < 1.0) {
       progress_ += 0.05;
-      send_feedback(progress_, "Taxi is charging");
+      send_velocity(0.0, 0.0);
+      // send_feedback(progress_, "Taxi is charging");
     } else {
+      
+      parsed_=false;
       finish(true, 1.0, "Charging completed");
 
-      progress_ = 0.0;
-      std::cout << std::endl;
+      // progress_ = 0.0;
+      // std::cout << std::endl;
     }
 
-    std::cout << "\r\e[K" << std::flush;
-    std::cout << "Charging taxi " << robot_name_ << " at " << location_ << " [" 
-              << std::min(100.0, progress_ * 100.0) << "%]  " << std::flush;
+    // std::cout << "\r\e[K" << std::flush;
+    // std::cout << "Charging taxi " << robot_name_ << " at " << location_ << " [" 
+    //           << std::min(100.0, progress_ * 100.0) << "%]  " << std::flush;
   }
 
   void parse_parameters(){
@@ -58,6 +74,8 @@ private:
   bool parsed_ = false;
   std::string robot_name_;
   std::string location_;
+
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub_;
 };
 
 int main(int argc, char ** argv){
