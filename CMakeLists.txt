@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(my_taxi_autonomous)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # Dipendenze
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -11,6 +14,9 @@ find_package(plansys2_executor REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(nav_msgs REQUIRED)
+
+find_package(yaml-cpp REQUIRED)
+find_package(ros_gz_interfaces REQUIRED)
 
 
 find_package(tf2_geometry_msgs REQUIRED)
@@ -28,6 +34,8 @@ set(dependencies
   tf2_ros
   tf2_geometry_msgs
   nav_msgs
+  yaml-cpp
+  ros_gz_interfaces
 )
 
 include_directories(include)
@@ -68,6 +76,7 @@ ament_target_dependencies(dropoff_action_node ${dependencies})
 
 add_executable(controller_node src/controller_node.cpp)
 ament_target_dependencies(controller_node ${dependencies})
+target_link_libraries(controller_node yaml-cpp)
 
 add_executable(cmd_vel_bridge src/cmd_vel_bridge.cpp)
 ament_target_dependencies(cmd_vel_bridge rclcpp geometry_msgs)
