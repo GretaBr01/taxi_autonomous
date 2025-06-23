@@ -18,3 +18,20 @@ This project demonstrated how it is possible to integrate temporal AI planning t
 2. Build the workspace
 3. Launch the Simulation:  ```ros2 launch my_taxi_autonomous my_taxi_planner_launch.py```
 4. Once the Gazebo simulation is running, start the controller node: ```ros2 run my_taxi_autonomous controller_node```
+
+## Warnings During Execution
+
+You may encounter the following errors or warnings in the terminal when launching the planner or simulation
+
+These messages are typically related to:
+- Predicates defined in PDDL that are not declared in the domain file
+- Typos or inconsistencies in the `problem.pddl` file
+- Passengers or locations that are not yet part of the simulation scene
+
+### These do **not** affect the functionality of the project.
+The simulation and planning system will continue to run as long as valid goals and domain/problem definitions are provided.
+
+> You can ignore these messages unless you are debugging or customizing the PDDL logic.
+
+
+
