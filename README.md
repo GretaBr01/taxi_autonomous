@@ -11,10 +11,10 @@ This project demonstrated how it is possible to integrate temporal AI planning t
 - ROS 2 Jazzy
 - Gazebo simulator
 - PlanSys2 planning framework
-- Temporal Fast Downward (TFD) planner: [text](https://github.com/PlanSys2/plansys2_tfd_plan_solver)
+- Temporal Fast Downward (TFD) planner: [TFDPlanSolver](https://github.com/PlanSys2/plansys2_tfd_plan_solver)
 
 ## To execute the project:
 1. Clone the repository  in your workspace
 2. Build the workspace
-3. Launch the Simulation:  '''ros2 launch my_taxi_autonomous my_taxi_planner_launch.py'''
-4. Once the Gazebo simulation is running, start the controller node: '''ros2 run my_taxi_autonomous controller_node'''
+3. Launch the Simulation:  ```ros2 launch my_taxi_autonomous my_taxi_planner_launch.py```
+4. Once the Gazebo simulation is running, start the controller node: ```ros2 run my_taxi_autonomous controller_node```
