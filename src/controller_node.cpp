@@ -484,7 +484,7 @@ public:
                 {3, "Visualizza",              [this]() { showViewMenu(); }},
                 {4, "Inserisci",               [this]() { showInsertMenu(); }},
                 {5, "Resetta",                 [this]() { showResetMenu(); }},
-                {0, "Esci",                    [this]() { rclcpp::shutdown(); }}
+                //{0, "Esci",                    [this]() { rclcpp::shutdown(); }}
             };
 
             showMenu(main_menu);
